@@ -5,10 +5,12 @@ spring:
   application:
     name: catalog-service
 
+  # Datasource defaults align with infra/db/docker-compose.yml (dev only).
+  # In CI/prod, inject via environment variables / secrets.
   datasource:
-    url: ${CATALOG_DB_URL:jdbc:postgresql://localhost:5432/shopizer}
-    username: ${CATALOG_DB_USER:shopizer}
-    password: ${CATALOG_DB_PASSWORD:shopizer}
+    url: ${SHOPIZER_DB_URL:${CATALOG_DB_URL:jdbc:postgresql://localhost:5432/shopizer}}
+    username: ${SHOPIZER_DB_USER:${CATALOG_DB_USER:shopizer}}
+    password: ${SHOPIZER_DB_PASSWORD:${CATALOG_DB_PASSWORD:shopizer}}
 
   jpa:
     hibernate:
@@ -20,8 +22,18 @@ spring:
 
   flyway:
     enabled: true
-    locations: classpath:db/migration
-    default-schema: catalog
+    # IMPORTANT:
+    # This repository uses a *central* Flyway migrations folder under infra/db/flyway/migrations.
+    # The catalog-service runs those migrations (and therefore uses the shared schema contract).
+    #
+    # For local dev, you can run the infra/db migrations via Flyway CLI (see infra/db/README.md),
+    # or by starting the service with Flyway enabled (default).
+    #
+    # - filesystem:... enables running from the repo root without packaging SQL into the jar.
+    # - classpath:db/migration is kept as a fallback for CI/packaged runs if needed.
+    locations: filesystem:../infra/db/flyway/migrations,classpath:db/migration
+    default-schema: shopizer
+    schemas: shopizer
 
 management:
   endpoints:

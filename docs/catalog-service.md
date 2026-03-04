@@ -15,10 +15,29 @@ It exposes REST APIs for catalog browsing and will later expose admin/write APIs
 - Swagger UI: `/swagger-ui`
 
 ## Data storage
-- PostgreSQL 16, schema: `catalog`
-- Flyway migrations are embedded in the service at `classpath:db/migration`
+- PostgreSQL 16 (local dev via `infra/db/docker-compose.yml`)
+- Schema: `shopizer` (owned by the repo’s shared Flyway migrations under `infra/db/flyway/migrations`)
 
-Environment variables:
+### Flyway migrations strategy (repo convention)
+This repo uses a **central** migrations folder:
+
+- `infra/db/flyway/migrations`
+
+The `catalog-service` is configured to run those migrations on startup (Flyway enabled by default) via:
+
+- `spring.flyway.locations=filesystem:../infra/db/flyway/migrations,...`
+
+This keeps schema evolution consistent across services and supports the migration scripts under `infra/db/migration/*`.
+
+### Environment variables
+The service accepts both shared (preferred) and service-specific variables.
+
+Preferred shared variables (align with repo infra):
+- `SHOPIZER_DB_URL`
+- `SHOPIZER_DB_USER`
+- `SHOPIZER_DB_PASSWORD`
+
+Service-specific (supported for compatibility):
 - `CATALOG_DB_URL`
 - `CATALOG_DB_USER`
 - `CATALOG_DB_PASSWORD`
