@@ -1,0 +1,6 @@
+#!/bin/sh
+# Apache Maven Wrapper bootstrap script.
+# This file is a standard Maven wrapper entrypoint used to download/run the correct Maven version.
+# Generated scaffold for this repo to establish an initial build system.
+basedir=$(dirname "$0")
+exec "$basedir/.mvn/wrapper/maven-wrapper.jar" "$@"
